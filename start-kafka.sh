@@ -4,17 +4,18 @@ if [[ -z "$KAFKA_PORT" ]]; then
     export KAFKA_PORT=9092
 fi
 if [[ -z "$KAFKA_ADVERTISED_PORT" ]]; then
-    export KAFKA_ADVERTISED_PORT=$(docker port `hostname` $KAFKA_PORT | sed -r "s/.*:(.*)/\1/g")
+    export KAFKA_ADVERTISED_PORT=$KAFKA_PORT
 fi
 if [[ -z "$KAFKA_BROKER_ID" ]]; then
     # By default auto allocate broker ID
+    # **NOTE** NOT WORKING IN 0.8.2.2
     export KAFKA_BROKER_ID=-1
 fi
 if [[ -z "$KAFKA_LOG_DIRS" ]]; then
     export KAFKA_LOG_DIRS="/kafka/kafka-logs-$HOSTNAME"
 fi
 if [[ -z "$KAFKA_ZOOKEEPER_CONNECT" ]]; then
-    export KAFKA_ZOOKEEPER_CONNECT=$(env | grep ZK.*PORT_2181_TCP= | sed -e 's|.*tcp://||' | paste -sd ,)
+    export KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181/kafka
 fi
 
 if [[ -n "$KAFKA_HEAP_OPTS" ]]; then
@@ -23,7 +24,7 @@ if [[ -n "$KAFKA_HEAP_OPTS" ]]; then
 fi
 
 if [[ -z "$KAFKA_ADVERTISED_HOST_NAME" && -n "$HOSTNAME_COMMAND" ]]; then
-    export KAFKA_ADVERTISED_HOST_NAME=$(eval $HOSTNAME_COMMAND)
+    export KAFKA_ADVERTISED_HOST_NAME=zookeeper
 fi
 
 for VAR in `env`
